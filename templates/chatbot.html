@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Nutrition Assistant - NutriTrack{% endblock %}
+
+{% block content %}
+<div class='page-container'>
+    <div class='page-header'>
+        <h1><i class='fas fa-robot'></i> Nutrition Assistant</h1>
+        <p>Ask me anything about food, calories, or nutrition!</p>
+    </div>
+
+    <div class='chatbot-container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-comments'></i> Chat with Assistant</h2>
+            </div>
+            <div class='card-body'>
+                <div class='chat-window' id='chatWindow'>
+                    <div class='message bot-message'>
+                        <div class='message-header'>
+                            <i class='fas fa-robot'></i>
+                            <strong>Nutrition Assistant</strong>
+                        </div>
+                        Hello! I'm your nutrition assistant. I can help you with:
+                        <ul>
+                            <li>Food nutrition information</li>
+                            <li>Calorie calculations</li>
+                            <li>Meal planning advice</li>
+                            <li>Healthy eating tips</li>
+                            <li>Food recommendations</li>
+                        </ul>
+                        What would you like to know?
+                    </div>
+                </div>
+                
+                <div class='input-group'>
+                    <input type='text' id='chatInput' placeholder='Ask me anything about nutrition...' 
+                           onkeypress='if(event.key === "Enter") sendMessage()'>
+                    <button onclick='sendMessage()' class='btn-primary'>
+                        <i class='fas fa-paper-plane'></i> Send
+                    </button>
+                </div>
+                
+                <div class='quick-questions'>
+                    <p>Try asking:</p>
+                    <div class='question-chips'>
+                        <button onclick='askQuestion("How many calories in an apple?")' class='question-chip'>How many calories in an apple?</button>
+                        <button onclick='askQuestion("Suggest a healthy breakfast")' class='question-chip'>Suggest a healthy breakfast</button>
+                        <button onclick='askQuestion("What foods are high in protein?")' class='question-chip'>High protein foods</button>
+                        <button onclick='askQuestion("How to lose weight safely?")' class='question-chip'>Weight loss tips</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-info-circle'></i> Assistant Capabilities</h2>
+            </div>
+            <div class='card-body'>
+                <div class='capabilities-grid'>
+                    <div class='capability'>
+                        <i class='fas fa-search'></i>
+                        <h3>Food Lookup</h3>
+                        <p>Get detailed nutrition information for any food item</p>
+                    </div>
+                    <div class='capability'>
+                        <i class='fas fa-calculator'></i>
+                        <h3>Calculations</h3>
+                        <p>Calculate calories, macros, and nutritional values</p>
+                    </div>
+                    <div class='capability'>
+                        <i class='fas fa-lightbulb'></i>
+                        <h3>Recommendations</h3>
+                        <p>Get personalized food and meal suggestions</p>
+                    </div>
+                    <div class='capability'>
+                        <i class='fas fa-chart-line'></i>
+                        <h3>Progress Tracking</h3>
+                        <p>Analyze your eating habits and progress</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let conversationHistory = [];
+
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+    if (!message) return;
+    
+    addMessage(message, 'user');
+    input.value = '';
+    
+    fetch('/api/chat', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: message})
+    })
+    .then(response => response.json())
+    .then(data => {
+        addMessage(data.response, 'bot');
+        conversationHistory.push({user: message, bot: data.response});
+    })
+    .catch(error => {
+        addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+    });
+}
+
+function addMessage(text, sender) {
+    const chatWindow = document.getElementById('chatWindow');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message ' + sender + '-message';
+    
+    if (sender === 'bot') {
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <i class="fas fa-robot"></i>
+                <strong>Nutrition Assistant</strong>
+            </div>
+            ${formatMessage(text)}
+        `;
+    } else {
+        messageDiv.innerHTML = `
+            <div class="message-header">
+                <i class="fas fa-user"></i>
+                <strong>You</strong>
+            </div>
+            ${formatMessage(text)}
+        `;
+    }
+    
+    chatWindow.appendChild(messageDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+function formatMessage(text) {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>')
+        .replace(/•/g, '•');
+}
+
+function askQuestion(question) {
+    document.getElementById('chatInput').value = question;
+    sendMessage();
+}
+
+// Clear chat button functionality
+function clearChat() {
+    if (confirm('Clear all chat messages?')) {
+        document.getElementById('chatWindow').innerHTML = `
+            <div class="message bot-message">
+                <div class="message-header">
+                    <i class="fas fa-robot"></i>
+                    <strong>Nutrition Assistant</strong>
+                </div>
+                Hello! I'm your nutrition assistant. What would you like to know?
+            </div>
+        `;
+        conversationHistory = [];
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+
+{% block title %}Recommendations - NutriTrack{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-header-section {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .search-header-section h2 {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+    
+    .transparent-search {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .transparent-input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .transparent-input-group input {
+        flex: 1;
+        padding: 15px 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 16px;
+        backdrop-filter: blur(5px);
+    }
+    
+    .transparent-input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .transparent-input-group input:focus {
+        outline: none;
+        border-color: white;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .transparent-search-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .transparent-search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .transparent-search-results {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .example-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+        justify-content: center;
+    }
+    
+    .example-chip {
+        padding: 8px 15px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+    
+    .example-chip:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-1px);
+    }
+    
+    .recommendations-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .recommendation-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .recommendation-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .rec-food-name {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    
+    .rec-food-category {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #e6e9ff;
+        color: #667eea;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-bottom: 10px;
+    }
+    
+    .rec-food-nutrition {
+        margin: 10px 0;
+    }
+    
+    .rec-nutrition-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .rec-nutrition-label {
+        color: #666;
+    }
+    
+    .rec-nutrition-value {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class='page-container'>
+    <div class='page-header'>
+        <h1><i class='fas fa-lightbulb'></i> Food Recommendations</h1>
+        <p>Discover new foods based on your preferences</p>
+    </div>
+
+    <!-- Transparent Search Section (Centered at Top) -->
+    <div class='search-header-section'>
+        <h2><i class='fas fa-search'></i> Find Similar Foods</h2>
+        
+        <div class='transparent-search'>
+            <div class='transparent-input-group'>
+                <input type='text' id='recommendInput' placeholder='Enter a food you like (e.g., pumpkin, chicken, apple)...'
+                       value='pumpkin'>
+                <button onclick='getRecommendations()' class='transparent-search-btn'>
+                    <i class='fas fa-magic'></i> Get Recommendations
+                </button>
+            </div>
+            
+            <div class='recommendation-examples'>
+                <p style="color: rgba(255, 255, 255, 0.9); margin-bottom: 10px;">Try these examples:</p>
+                <div class='example-chips'>
+                    <button onclick='setRecommendInput("apple")' class='example-chip'>Apple</button>
+                    <button onclick='setRecommendInput("chicken")' class='example-chip'>Chicken</button>
+                    <button onclick='setRecommendInput("spinach")' class='example-chip'>Spinach</button>
+                    <button onclick='setRecommendInput("rice")' class='example-chip'>Rice</button>
+                </div>
+            </div>
+            
+            <div id='recommendationsList' class='transparent-search-results'>
+                <p class='search-hint' style="color: #666; text-align: center;">Enter a food above to get recommendations</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Grid Below -->
+    <div class='cards-grid'>
+        <!-- Personalized Recommendations -->
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-user-check'></i> For You</h2>
+            </div>
+            <div class='card-body'>
+                <div id='personalizedRecs'>
+                    <p>Loading personalized recommendations...</p>
+                </div>
+                <button onclick='loadPersonalizedRecommendations()' class='btn-secondary'>
+                    <i class='fas fa-sync-alt'></i> Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Healthy Alternatives -->
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-heart'></i> Healthy Alternatives</h2>
+            </div>
+            <div class='card-body'>
+                <div class='alternatives-list'>
+                    <div class='alternative'>
+                        <div class='alternative-info'>
+                            <h3>Instead of White Bread</h3>
+                            <p>Try: Whole wheat bread, Ezekiel bread, or Lettuce wraps</p>
+                        </div>
+                        <button onclick='searchFood("whole wheat bread")' class='btn-small'>
+                            <i class='fas fa-search'></i> Find
+                        </button>
+                    </div>
+                    <div class='alternative'>
+                        <div class='alternative-info'>
+                            <h3>Instead of Potato Chips</h3>
+                            <p>Try: Kale chips, Apple slices, or Roasted chickpeas</p>
+                        </div>
+                        <button onclick='searchFood("kale chips")' class='btn-small'>
+                            <i class='fas fa-search'></i> Find
+                        </button>
+                    </div>
+                    <div class='alternative'>
+                        <div class='alternative-info'>
+                            <h3>Instead of Soda</h3>
+                            <p>Try: Sparkling water, Infused water, or Herbal tea</p>
+                        </div>
+                        <button onclick='searchFood("sparkling water")' class='btn-small'>
+                            <i class='fas fa-search'></i> Find
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meal Ideas -->
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-utensils'></i> Meal Ideas</h2>
+            </div>
+            <div class='card-body'>
+                <div class='meal-ideas'>
+                    <div class='meal-idea'>
+                        <h3>High Protein Breakfast</h3>
+                        <ul>
+                            <li>Greek yogurt with berries</li>
+                            <li>Egg white omelette</li>
+                            <li>Protein smoothie</li>
+                        </ul>
+                    </div>
+                    <div class='meal-idea'>
+                        <h3>Light Lunch</h3>
+                        <ul>
+                            <li>Grilled chicken salad</li>
+                            <li>Quinoa bowl</li>
+                            <li>Vegetable soup</li>
+                        </ul>
+                    </div>
+                    <div class='meal-idea'>
+                        <h3>Healthy Dinner</h3>
+                        <ul>
+                            <li>Baked salmon with veggies</li>
+                            <li>Turkey stir-fry</li>
+                            <li>Lentil curry</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadPersonalizedRecommendations();
+});
+
+function setRecommendInput(food) {
+    document.getElementById('recommendInput').value = food;
+    getRecommendations();
+}
+
+function getRecommendations() {
+    const foodName = document.getElementById('recommendInput').value.trim();
+    if (!foodName) {
+        alert('Please enter a food name first');
+        return;
+    }
+    
+    fetch('/api/recommend?food=' + encodeURIComponent(foodName))
+        .then(response => response.json())
+        .then(recommendations => {
+            displayRecommendations(recommendations, foodName);
+        })
+        .catch(error => {
+            console.error('Error getting recommendations:', error);
+            document.getElementById('recommendationsList').innerHTML = 
+                '<p class="error" style="color: #ff6b6b; text-align: center;">Error loading recommendations</p>';
+        });
+}
+
+function displayRecommendations(recommendations, originalFood) {
+    const recDiv = document.getElementById('recommendationsList');
+    
+    if (!recommendations || recommendations.length === 0) {
+        recDiv.innerHTML = `
+            <div class="no-recommendations" style="text-align: center; padding: 20px;">
+                <i class="fas fa-search fa-2x" style="color: #ccc; margin-bottom: 10px;"></i>
+                <p style="color: #666; margin-bottom: 10px;">No recommendations found for "${originalFood}"</p>
+                <p style="color: #666;">Try a different food name.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = `
+        <div class="search-header" style="margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #333;">Foods similar to ${originalFood}:</h3>
+            <p style="color: #666; margin-bottom: 15px;">${recommendations.length} recommendations found</p>
+        </div>
+        <div class="recommendations-grid">
+    `;
+    
+    recommendations.forEach(food => {
+        // Escape quotes in food name
+        const safeFoodName = food.name.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        
+        html += `
+            <div class="recommendation-card">
+                <div class="rec-food-name">${food.name}</div>
+                <div class="rec-food-category">${food.category || 'Uncategorized'}</div>
+                <div class="rec-food-nutrition">
+                    <div class="rec-nutrition-item">
+                        <span class="rec-nutrition-label">Calories:</span>
+                        <span class="rec-nutrition-value">${Math.round(food.calories)}</span>
+                    </div>
+                    <div class="rec-nutrition-item">
+                        <span class="rec-nutrition-label">Protein:</span>
+                        <span class="rec-nutrition-value">${food.protein ? food.protein.toFixed(1) : '0'}g</span>
+                    </div>
+                    <div class="rec-nutrition-item">
+                        <span class="rec-nutrition-label">Carbs:</span>
+                        <span class="rec-nutrition-value">${food.carbs ? food.carbs.toFixed(1) : '0'}g</span>
+                    </div>
+                    ${food.fat ? `
+                    <div class="rec-nutrition-item">
+                        <span class="rec-nutrition-label">Fat:</span>
+                        <span class="rec-nutrition-value">${food.fat.toFixed(1)}g</span>
+                    </div>` : ''}
+                </div>
+                <button onclick='logFoodFromRecs("${safeFoodName}")' 
+                        class="btn-small" 
+                        style="margin-top: 10px; padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%;">
+                    <i class="fas fa-plus"></i> Add to Food Log
+                </button>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    recDiv.innerHTML = html;
+}
+function logFoodFromRecs(foodName) {
+    const quantity = prompt(`How many servings of ${foodName}?`, '1');
+    if (!quantity || isNaN(quantity) || parseFloat(quantity) <= 0) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    fetch('/api/log_food', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({date: today, food_name: foodName, quantity: parseFloat(quantity)})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`✅ ${foodName} logged successfully!`);
+        } else {
+            alert('Error logging food');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error logging food');
+    });
+}
+
+function loadPersonalizedRecommendations() {
+    const recsDiv = document.getElementById('personalizedRecs');
+    
+    const recommendations = [
+        {name: "Greek Yogurt", reason: "High in protein, low in calories"},
+        {name: "Salmon", reason: "Rich in Omega-3 fatty acids"},
+        {name: "Broccoli", reason: "High in fiber and vitamins"},
+        {name: "Quinoa", reason: "Complete protein source"},
+        {name: "Blueberries", reason: "Antioxidant-rich superfood"}
+    ];
+    
+    let html = '<div class="personalized-list">';
+    recommendations.forEach(rec => {
+        html += `
+            <div class="personalized-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee;">
+                <div class="personalized-food" style="flex: 1;">
+                    <strong style="display: block;">${rec.name}</strong>
+                    <span class="personalized-reason" style="font-size: 0.9rem; color: #666;">${rec.reason}</span>
+                </div>
+                <button onclick='searchFood("${rec.name}")' class="btn-icon btn-small" style="padding: 5px 10px; background: #f0f2ff; color: #667eea; border: 1px solid #667eea; border-radius: 4px; cursor: pointer;">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    recsDiv.innerHTML = html;
+}
+
+function searchFood(foodName) {
+    // OLD CODE (redirects to food log):
+    // window.location.href = '/food-log#' + encodeURIComponent(foodName);
+    
+    // NEW CODE (shows recommendations):
+    document.getElementById('recommendInput').value = foodName;
+    getRecommendations();
+}
+</script>
+{% endblock %}

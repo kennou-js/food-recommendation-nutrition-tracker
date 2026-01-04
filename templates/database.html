@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+
+{% block title %}Database Management - NutriTrack{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-header-section {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .search-header-section h2 {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 1.8rem;
+    }
+    
+    .transparent-search {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .transparent-input-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .transparent-input-group input {
+        flex: 1;
+        padding: 15px 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 16px;
+        backdrop-filter: blur(5px);
+    }
+    
+    .transparent-input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .transparent-input-group input:focus {
+        outline: none;
+        border-color: white;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .transparent-search-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .transparent-search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .transparent-search-results {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .database-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class='page-container'>
+    <div class='page-header'>
+        <h1><i class='fas fa-database'></i> Database Management</h1>
+        <p>Manage food database and settings</p>
+    </div>
+
+    <!-- Transparent Search Section (Centered at Top) -->
+    <div class='search-header-section'>
+        <h2><i class='fas fa-search'></i> Search All Foods in Database</h2>
+        
+        <div class='transparent-search'>
+            <div class='transparent-input-group'>
+                <input type='text' id='dbSearch' placeholder='Search all foods in database...'
+                       onkeyup='if(event.key === "Enter") searchDatabase()'>
+                <button onclick='searchDatabase()' class='transparent-search-btn'>
+                    <i class='fas fa-search'></i> Search
+                </button>
+            </div>
+            
+            <div id='dbSearchResults' class='transparent-search-results'>
+                <p class='search-hint' style="color: #666; text-align: center;">Enter a search term above</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cards Grid Below -->
+    <div class='database-grid'>
+        <!-- Database Stats -->
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-chart-bar'></i> Database Statistics</h2>
+                <button onclick='loadDatabaseStats()' class='btn-icon' title='Refresh'>
+                    <i class='fas fa-sync-alt'></i>
+                </button>
+            </div>
+            <div class='card-body'>
+                <div id='dbStats' class='stats-display'>
+                    Loading statistics...
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Custom Food -->
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-plus-circle'></i> Add Custom Food</h2>
+            </div>
+            <div class='card-body'>
+                <form class='custom-food-form'>
+                    <div class='form-grid'>
+                        <div class='form-group'>
+                            <label for='foodName'><i class='fas fa-utensils'></i> Food Name *</label>
+                            <input type='text' id='foodName' placeholder='Enter food name' required>
+                        </div>
+                        
+                        <div class='form-group'>
+                            <label for='foodCategory'><i class='fas fa-tag'></i> Category *</label>
+                            <select id='foodCategory'>
+                                <option value='Fruit'>Fruit</option>
+                                <option value='Vegetable'>Vegetable</option>
+                                <option value='Protein'>Protein</option>
+                                <option value='Grain'>Grain</option>
+                                <option value='Dairy'>Dairy</option>
+                                <option value='Nuts'>Nuts</option>
+                                <option value='Legume'>Legume</option>
+                                <option value='Other'>Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class='form-group'>
+                            <label for='foodCalories'><i class='fas fa-fire'></i> Calories (per 100g) *</label>
+                            <input type='number' id='foodCalories' placeholder='Calories' required min='0'>
+                        </div>
+                        
+                        <div class='form-group'>
+                            <label for='foodProtein'><i class='fas fa-dumbbell'></i> Protein (g)</label>
+                            <input type='number' step='0.1' id='foodProtein' placeholder='Protein' min='0'>
+                        </div>
+                        
+                        <div class='form-group'>
+                            <label for='foodFat'><i class='fas fa-oil-can'></i> Fat (g)</label>
+                            <input type='number' step='0.1' id='foodFat' placeholder='Fat' min='0'>
+                        </div>
+                        
+                        <div class='form-group'>
+                            <label for='foodCarbs'><i class='fas fa-bread-slice'></i> Carbs (g)</label>
+                            <input type='number' step='0.1' id='foodCarbs' placeholder='Carbs' min='0'>
+                        </div>
+                    </div>
+                    
+                    <div class='form-actions'>
+                        <button type='button' onclick='addCustomFood()' class='btn-primary'>
+                            <i class='fas fa-save'></i> Add to Database
+                        </button>
+                        <button type='reset' class='btn-secondary'>
+                            <i class='fas fa-undo'></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Database Maintenance -->
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-tools'></i> Database Maintenance</h2>
+            </div>
+            <div class='card-body'>
+                <div class='maintenance-actions'>
+                    <div class='maintenance-item'>
+                        <div class='maintenance-info'>
+                            <h3><i class='fas fa-broom'></i> Clean Database</h3>
+                            <p>Remove unrealistic/erroneous entries (high calorie outliers, etc.)</p>
+                        </div>
+                        <button onclick='cleanDatabase()' class='btn-danger'>
+                            <i class='fas fa-trash'></i> Clean Now
+                        </button>
+                    </div>
+                    
+                    <div class='maintenance-item'>
+                        <div class='maintenance-info'>
+                            <h3><i class='fas fa-search'></i> Find Duplicates</h3>
+                            <p>Search for duplicate food entries</p>
+                        </div>
+                        <button onclick='findDuplicates()' class='btn-secondary'>
+                            <i class='fas fa-search'></i> Scan
+                        </button>
+                    </div>
+                    
+                    <div class='maintenance-item'>
+                        <div class='maintenance-info'>
+                            <h3><i class='fas fa-download'></i> Export Database</h3>
+                            <p>Export food database as CSV file</p>
+                        </div>
+                        <button onclick='exportDatabase()' class='btn-secondary'>
+                            <i class='fas fa-file-export'></i> Export
+                        </button>
+                    </div>
+                </div>
+                
+                <div id='maintenanceStatus' class='status-message'></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadDatabaseStats();
+});
+
+function loadDatabaseStats() {
+    fetch('/api/all_foods')
+        .then(response => response.json())
+        .then(foods => {
+            updateStatsDisplay(foods);
+        })
+        .catch(error => {
+            console.error('Error loading stats:', error);
+            document.getElementById('dbStats').innerHTML = 
+                '<p class="error">Error loading database statistics</p>';
+        });
+}
+
+function updateStatsDisplay(foods) {
+    const statsDiv = document.getElementById('dbStats');
+    
+    if (foods.error) {
+        statsDiv.innerHTML = `<p class="error">Error: ${foods.error}</p>`;
+        return;
+    }
+    
+    if (!foods || foods.length === 0) {
+        statsDiv.innerHTML = '<p class="empty-state">Database is empty</p>';
+        return;
+    }
+    
+    const categories = {};
+    let totalCalories = 0;
+    let minCalories = Infinity;
+    let maxCalories = -Infinity;
+    
+    foods.forEach(food => {
+        categories[food.category] = (categories[food.category] || 0) + 1;
+        totalCalories += food.calories;
+        minCalories = Math.min(minCalories, food.calories);
+        maxCalories = Math.max(maxCalories, food.calories);
+    });
+    
+    const avgCalories = totalCalories / foods.length;
+    
+    let statsHTML = `
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-label">Total Foods</div>
+                <div class="stat-value">${foods.length}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Avg Calories</div>
+                <div class="stat-value">${avgCalories.toFixed(1)}</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Categories</div>
+                <div class="stat-value">${Object.keys(categories).length}</div>
+            </div>
+        </div>
+        
+        <div class="category-breakdown">
+            <h3><i class="fas fa-tags"></i> Category Distribution</h3>
+            <div class="category-list">
+    `;
+    
+    const sortedCategories = Object.entries(categories)
+        .sort((a, b) => b[1] - a[1]);
+    
+    sortedCategories.forEach(([category, count]) => {
+        const percentage = (count / foods.length * 100).toFixed(1);
+        statsHTML += `
+            <div class="category-item">
+                <span class="category-name">${category}</span>
+                <div class="category-bar">
+                    <div class="category-fill" style="width: ${percentage}%"></div>
+                </div>
+                <span class="category-count">${count} (${percentage}%)</span>
+            </div>
+        `;
+    });
+    
+    statsHTML += `
+            </div>
+        </div>
+    `;
+    
+    statsDiv.innerHTML = statsHTML;
+}
+
+function addCustomFood() {
+    const foodData = {
+        name: document.getElementById('foodName').value.trim(),
+        category: document.getElementById('foodCategory').value,
+        calories: document.getElementById('foodCalories').value,
+        protein: document.getElementById('foodProtein').value || 0,
+        fat: document.getElementById('foodFat').value || 0,
+        carbs: document.getElementById('foodCarbs').value || 0
+    };
+    
+    if (!foodData.name || !foodData.calories) {
+        alert('Please enter at least food name and calories');
+        return;
+    }
+    
+    fetch('/api/add_food', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(foodData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`✅ Food "${foodData.name}" added successfully!`);
+            document.getElementById('foodName').value = '';
+            document.getElementById('foodCalories').value = '';
+            document.getElementById('foodProtein').value = '';
+            document.getElementById('foodFat').value = '';
+            document.getElementById('foodCarbs').value = '';
+            loadDatabaseStats();
+        } else {
+            alert(`❌ Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        alert('Error adding food');
+        console.error('Add food error:', error);
+    });
+}
+
+function cleanDatabase() {
+    const statusDiv = document.getElementById('maintenanceStatus');
+    statusDiv.innerHTML = '<div class="status-info"><i class="fas fa-spinner fa-spin"></i> Cleaning database...</div>';
+    
+    fetch('/api/clean_database', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            statusDiv.innerHTML = `
+                <div class="status-success">
+                    <i class="fas fa-check-circle"></i> ${data.message}<br>
+                    <small>Food count now: ${data.food_count}</small>
+                </div>
+            `;
+            loadDatabaseStats();
+        } else {
+            statusDiv.innerHTML = `
+                <div class="status-error">
+                    <i class="fas fa-exclamation-circle"></i> ${data.message}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        statusDiv.innerHTML = `
+            <div class="status-error">
+                <i class="fas fa-exclamation-circle"></i> Error cleaning database
+            </div>
+        `;
+        console.error('Clean error:', error);
+    });
+}
+
+function searchDatabase() {
+    const query = document.getElementById('dbSearch').value.trim();
+    if (!query) {
+        document.getElementById('dbSearchResults').innerHTML = 
+            '<p class="search-hint" style="color: #666; text-align: center;">Enter a search term above</p>';
+        return;
+    }
+    
+    fetch('/api/search?q=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(foods => {
+            displayDatabaseSearchResults(foods);
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            document.getElementById('dbSearchResults').innerHTML = 
+                '<p class="error">Error searching database</p>';
+        });
+}
+
+function displayDatabaseSearchResults(foods) {
+    const resultsDiv = document.getElementById('dbSearchResults');
+    
+    if (foods.length === 0) {
+        resultsDiv.innerHTML = '<p class="no-results" style="text-align: center; color: #666;">No foods found matching your search.</p>';
+        return;
+    }
+    
+    let html = `
+        <div class="search-header">
+            <h3 style="margin-top: 0; color: #333;">${foods.length} results found</h3>
+        </div>
+        <div class="database-table">
+            <table style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Food Name</th>
+                        <th>Category</th>
+                        <th>Calories</th>
+                        <th>Protein</th>
+                        <th>Carbs</th>
+                        <th>Fat</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    foods.forEach(food => {
+        html += `
+            <tr>
+                <td>${food.name}</td>
+                <td><span class="category-badge" style="display: inline-block; padding: 3px 8px; background: #e6e9ff; color: #667eea; border-radius: 4px; font-size: 0.8rem;">${food.category}</span></td>
+                <td>${food.calories}</td>
+                <td>${food.protein}g</td>
+                <td>${food.carbs}g</td>
+                <td>${food.fat}g</td>
+                <td>
+                    <button onclick='logFoodFromDB("${food.name}")' class="btn-icon btn-small" style="padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    resultsDiv.innerHTML = html;
+}
+
+function logFoodFromDB(foodName) {
+    const quantity = prompt(`How many servings of ${foodName}?`, '1');
+    if (!quantity || isNaN(quantity) || parseFloat(quantity) <= 0) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    fetch('/api/log_food', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({date: today, food_name: foodName, quantity: parseFloat(quantity)})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`✅ ${foodName} logged successfully!`);
+        } else {
+            alert('Error logging food');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error logging food');
+    });
+}
+
+function findDuplicates() {
+    const statusDiv = document.getElementById('maintenanceStatus');
+    statusDiv.innerHTML = '<div class="status-info"><i class="fas fa-spinner fa-spin"></i> Scanning for duplicates...</div>';
+    
+    setTimeout(() => {
+        statusDiv.innerHTML = `
+            <div class="status-info">
+                <i class="fas fa-info-circle"></i> Duplicate scan complete. 
+                <br><small>This feature requires backend implementation.</small>
+            </div>
+        `;
+    }, 1500);
+}
+
+function exportDatabase() {
+    const statusDiv = document.getElementById('maintenanceStatus');
+    statusDiv.innerHTML = '<div class="status-info"><i class="fas fa-spinner fa-spin"></i> Preparing export...</div>';
+    
+    fetch('/api/all_foods')
+        .then(response => response.json())
+        .then(foods => {
+            if (foods.error) {
+                throw new Error(foods.error);
+            }
+            
+            const csvContent = convertToCSV(foods);
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `nutritrack_database_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            statusDiv.innerHTML = `
+                <div class="status-success">
+                    <i class="fas fa-check-circle"></i> Database exported successfully!
+                </div>
+            `;
+        })
+        .catch(error => {
+            statusDiv.innerHTML = `
+                <div class="status-error">
+                    <i class="fas fa-exclamation-circle"></i> Error exporting database: ${error.message}
+                </div>
+            `;
+        });
+}
+
+function convertToCSV(foods) {
+    if (foods.length === 0) return '';
+    
+    const headers = Object.keys(foods[0]);
+    const csvRows = [
+        headers.join(','),
+        ...foods.map(food => headers.map(header => {
+            const value = food[header];
+            return typeof value === 'string' ? `"${value.replace(/"/g, '""')}"` : value;
+        }).join(','))
+    ];
+    
+    return csvRows.join('\n');
+}
+</script>
+{% endblock %}

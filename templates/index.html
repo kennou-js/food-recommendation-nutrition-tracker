@@ -1,0 +1,867 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Dashboard - NutriTrack{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<style>
+    .welcome-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+    
+    @media (max-width: 768px) {
+        .welcome-section {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .top-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .top-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .top-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f2ff;
+    }
+    
+    .top-card-header h2 {
+        color: #333;
+        font-size: 1.3rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .top-card-content {
+        flex: 1;
+        margin-bottom: 20px;
+    }
+    
+    .goals-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .goal-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: #f8f9ff;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .goal-item:hover {
+        background: #f0f2ff;
+        transform: translateX(5px);
+    }
+    
+    .goal-item i {
+        font-size: 1.2rem;
+    }
+    
+    .goal-item span {
+        font-weight: 500;
+        color: #333;
+    }
+    
+    .tip-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #555;
+        margin-bottom: 20px;
+    }
+    
+    .top-card-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    .top-card-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: none;
+    }
+    
+    .tip-btn {
+        background: #f0f2ff;
+        color: #667eea;
+        border: 1px solid #667eea;
+    }
+    
+    .tip-btn:hover {
+        background: #e6e9ff;
+    }
+    
+    .water-btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .water-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .food-btn {
+        background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        color: white;
+    }
+    
+    .food-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+    }
+    
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        background: #f8f9ff;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .activity-item:hover {
+        background: #f0f2ff;
+        transform: translateX(5px);
+    }
+    
+    .activity-item i {
+        font-size: 1.2rem;
+        min-width: 24px;
+        text-align: center;
+    }
+    
+    .activity-info {
+        flex: 1;
+    }
+    
+    .activity-info span {
+        display: block;
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 3px;
+    }
+    
+    .activity-info small {
+        color: #666;
+        font-size: 0.85rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Goals & Recent Activity Section -->
+    <div class="welcome-section">
+        <!-- Left Side: Goals & Today's Tip -->
+        <div style="display: flex; flex-direction: column; gap: 25px;">
+            <!-- Weekly Goals Card -->
+            <div class="top-card">
+                <div class="top-card-header">
+                    <h2><i class="fas fa-bullseye"></i> Weekly Goals</h2>
+                </div>
+                <div class="top-card-content">
+                    <div class="goals-list">
+                        <!-- Goals will be loaded dynamically -->
+                    </div>
+                </div>
+                <div class="top-card-actions">
+                    <button onclick="quickAddFood()" class="top-card-btn food-btn">
+                        <i class="fas fa-plus"></i> Quick Add Food
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Today's Tip Card -->
+            <div class="top-card">
+                <div class="top-card-header">
+                    <h2><i class="fas fa-lightbulb"></i> Today's Tip</h2>
+                    <button onclick="getNewTip()" class="top-card-btn tip-btn" title="Get new tip">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+                <div class="top-card-content">
+                    <p class="tip-text" id="dailyTip">Loading tip...</p>
+                </div>
+                <div class="top-card-actions">
+                    <button onclick="logWater()" class="top-card-btn water-btn">
+                        <i class="fas fa-tint"></i> Log Water
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Side: Recent Activity -->
+        <div class="top-card">
+            <div class="top-card-header">
+                <h2><i class="fas fa-history"></i> Recent Activity</h2>
+            </div>
+            <div class="top-card-content">
+                <div class="activity-list">
+                    <!-- Activity items will be loaded dynamically -->
+                </div>
+            </div>
+            <div class="top-card-actions">
+                <button onclick="loadDashboard()" class="top-card-btn water-btn">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+        <div class="stat-card card">
+            <div class="stat-icon"><i class="fas fa-fire"></i></div>
+            <div class="stat-content">
+                <h3>Today's Calories</h3>
+                <div class="stat-value" id="todayCalories">0<span>cal</span></div>
+                <div class="stat-target" id="calorieTarget">Target: 0 cal</div>
+            </div>
+        </div>
+
+        <div class="stat-card card">
+            <div class="stat-icon"><i class="fas fa-dumbbell"></i></div>
+            <div class="stat-content">
+                <h3>Protein</h3>
+                <div class="stat-value" id="todayProtein">0<span>g</span></div>
+                <div class="stat-target">Goal: 50-60g</div>
+            </div>
+        </div>
+
+        <div class="stat-card card">
+            <div class="stat-icon"><i class="fas fa-tint"></i></div>
+            <div class="stat-content">
+                <h3>Water Intake</h3>
+                <div class="stat-value" id="waterIntake">2.0<span>L</span></div>
+                <button class="btn-small" onclick="logWater()"><i class="fas fa-plus"></i> Add Glass</button>
+            </div>
+        </div>
+
+        <div class="stat-card card">
+            <div class="stat-icon"><i class="fas fa-weight"></i></div>
+            <div class="stat-content">
+                <h3>BMI</h3>
+                <div class="stat-value" id="bmiValue">-</div>
+                <div class="stat-target" id="bmiCategory">-</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid - Now with 3 cards instead of 4 -->
+    <div class="dashboard-grid">
+        <!-- Today's Food Log -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-utensils"></i> Today's Food Log</h2>
+                <div class="card-actions">
+                    <button onclick="loadDashboard()" class="btn-icon" title="Refresh"><i class="fas fa-sync-alt"></i></button>
+                    <a href="{{ url_for('food_log_page') }}" class="btn-icon" title="Go to Food Log"><i class="fas fa-external-link-alt"></i></a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="foodLogContainer">
+                    <p class="empty-state">No food logged today. <a href="{{ url_for('food_log_page') }}">Add some food!</a></p>
+                </div>
+                <div class="card-footer">
+                    <button onclick="clearDailyLogs()" class="btn-danger"><i class="fas fa-trash"></i> Clear Today</button>
+                    <button onclick="quickAddFood()" class="btn-primary"><i class="fas fa-plus"></i> Quick Add</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Breakdown -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-chart-pie"></i> Nutrition Breakdown</h2>
+            </div>
+            <div class="card-body">
+                <div id="nutritionDisplay">
+                    <p class="empty-state">Log food to see nutrition data</p>
+                </div>
+                <div id="calorieProgress" class="progress-container">
+                    <div class="progress-label">
+                        <span>Daily Goal: 0%</span>
+                        <span>0/0 cal</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="quick-actions">
+                    <a href="{{ url_for('food_log_page') }}" class="quick-action">
+                        <i class="fas fa-search"></i>
+                        <span>Search Food</span>
+                    </a>
+                    <a href="{{ url_for('chatbot_page') }}" class="quick-action">
+                        <i class="fas fa-robot"></i>
+                        <span>Ask Assistant</span>
+                    </a>
+                    <a href="{{ url_for('recommendations_page') }}" class="quick-action">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Get Recommendations</span>
+                    </a>
+                    <a href="{{ url_for('profile_page') }}" class="quick-action">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Update Profile</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Global variable to track water intake
+let waterIntake = 2.51; // Starting value
+
+// Initialize the dashboard
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved water intake from localStorage
+    const savedWater = localStorage.getItem('waterIntake');
+    if (savedWater) {
+        waterIntake = parseFloat(savedWater);
+    }
+    
+    loadDashboard();
+});
+
+// Main function to load all dashboard data
+function loadDashboard() {
+    loadUserProfile();
+    loadDailySummary();
+    loadWeeklyGoals();
+    loadRecentActivity();
+    loadDailyTip();
+    updateWaterDisplay();
+}
+
+// Load user profile data
+function loadUserProfile() {
+    // This would typically come from your API
+    // For now, we'll use placeholder data
+    const userProfile = {
+        daily_calories: 1435,
+        water_intake: waterIntake, // Use the actual water intake value
+        bmi: 24.3,
+        bmi_category: "Normal weight"
+    };
+    
+    // Update stats with user profile data
+    document.getElementById('calorieTarget').textContent = `Target: ${userProfile.daily_calories} cal`;
+    document.getElementById('bmiValue').textContent = userProfile.bmi;
+    document.getElementById('bmiCategory').textContent = userProfile.bmi_category;
+    
+    // Update water display
+    updateWaterDisplay();
+}
+
+// Update water display
+function updateWaterDisplay() {
+    const waterElement = document.getElementById('waterIntake');
+    waterElement.innerHTML = `${waterIntake.toFixed(2)}<span>L</span>`;
+}
+
+// Load daily summary from API
+function loadDailySummary() {
+    fetch('/api/daily_summary')
+        .then(response => response.json())
+        .then(data => {
+            updateDashboard(data);
+        })
+        .catch(error => {
+            console.error('Error loading dashboard:', error);
+            // Use placeholder data if API fails
+            updateDashboard({
+                logs: [],
+                nutrition: {calories: 0, protein: 0, carbs: 0, fat: 0},
+                user_profile: {daily_calories: 1435}
+            });
+        });
+}
+
+// Update dashboard with data
+function updateDashboard(data) {
+    // Update food log
+    const logContainer = document.getElementById('foodLogContainer');
+    if (data.logs && data.logs.length > 0) {
+        let html = '<ul class="food-log">';
+        data.logs.forEach(log => {
+            html += `<li><span class="food-name">${log.food}</span><span class="food-quantity">x${log.quantity}</span></li>`;
+        });
+        html += '</ul>';
+        logContainer.innerHTML = html;
+    } else {
+        logContainer.innerHTML = '<p class="empty-state">No food logged today. <a href="/food-log">Add some food!</a></p>';
+    }
+    
+    // Update nutrition display
+    if (data.nutrition && data.nutrition.calories > 0) {
+        document.getElementById('nutritionDisplay').innerHTML = `
+            <div class="nutrition-grid">
+                <div class="nutrition-card calories">
+                    <div class="nutrition-value">${Math.round(data.nutrition.calories)}</div>
+                    <div class="nutrition-label">Calories</div>
+                </div>
+                <div class="nutrition-card protein">
+                    <div class="nutrition-value">${data.nutrition.protein.toFixed(1)}</div>
+                    <div class="nutrition-label">Protein (g)</div>
+                </div>
+                <div class="nutrition-card carbs">
+                    <div class="nutrition-value">${data.nutrition.carbs.toFixed(1)}</div>
+                    <div class="nutrition-label">Carbs (g)</div>
+                </div>
+                <div class="nutrition-card fat">
+                    <div class="nutrition-value">${data.nutrition.fat.toFixed(1)}</div>
+                    <div class="nutrition-label">Fat (g)</div>
+                </div>
+            </div>
+        `;
+        
+        // Update quick stats
+        document.getElementById('todayCalories').innerHTML = `${Math.round(data.nutrition.calories)}<span>cal</span>`;
+        document.getElementById('todayProtein').innerHTML = `${data.nutrition.protein.toFixed(1)}<span>g</span>`;
+        
+        // Update progress bar
+        if (data.user_profile && data.user_profile.daily_calories) {
+            const progress = Math.round((data.nutrition.calories / data.user_profile.daily_calories) * 100);
+            document.getElementById('calorieProgress').innerHTML = `
+                <div class="progress-label">
+                    <span>Daily Goal: ${progress}%</span>
+                    <span>${Math.round(data.nutrition.calories)}/${data.user_profile.daily_calories} cal</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${progress}%"></div>
+                </div>
+            `;
+        }
+    } else {
+        // Reset to empty state
+        document.getElementById('todayCalories').innerHTML = `0<span>cal</span>`;
+        document.getElementById('todayProtein').innerHTML = `0<span>g</span>`;
+        document.getElementById('calorieProgress').innerHTML = `
+            <div class="progress-label">
+                <span>Daily Goal: 0%</span>
+                <span>0/0 cal</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+        `;
+    }
+}
+
+// Load weekly goals
+function loadWeeklyGoals() {
+    const goals = [
+        {icon: "fa-check-circle", color: "#4CAF50", text: "Track food daily"},
+        {icon: "fa-tint", color: "#2196F3", text: "Drink 2L water daily"},
+        {icon: "fa-apple-alt", color: "#FF9800", text: "Eat 5 servings of fruits/veggies"},
+        {icon: "fa-dumbbell", color: "#9C27B0", text: "Exercise 3 times this week"}
+    ];
+    
+    const goalsList = document.querySelector('.goals-list');
+    let html = '';
+    goals.forEach(goal => {
+        html += `
+            <div class="goal-item">
+                <i class="fas ${goal.icon}" style="color: ${goal.color};"></i>
+                <span>${goal.text}</span>
+            </div>
+        `;
+    });
+    goalsList.innerHTML = html;
+}
+
+// Load recent activity
+function loadRecentActivity() {
+    const activities = [
+        {icon: "fa-utensils", color: "#667eea", title: "Food logged", desc: "Apple - 2 hours ago"},
+        {icon: "fa-tint", color: "#2196F3", title: "Water logged", desc: "250ml - 4 hours ago"},
+        {icon: "fa-chart-line", color: "#4CAF50", title: "Calorie goal updated", desc: "2000 cal - Yesterday"},
+        {icon: "fa-robot", color: "#9C27B0", title: "Chat with assistant", desc: '"Protein sources" - 2 days ago'}
+    ];
+    
+    const activityList = document.querySelector('.activity-list');
+    let html = '';
+    activities.forEach(activity => {
+        html += `
+            <div class="activity-item">
+                <i class="fas ${activity.icon}" style="color: ${activity.color};"></i>
+                <div class="activity-info">
+                    <span>${activity.title}</span>
+                    <small>${activity.desc}</small>
+                </div>
+            </div>
+        `;
+    });
+    activityList.innerHTML = html;
+}
+
+// Load daily tip
+function loadDailyTip() {
+    const tips = [
+        "Drink a glass of water before each meal to help control appetite.",
+        "Include protein in every meal to stay full longer.",
+        "Aim for 5 servings of vegetables and fruits daily.",
+        "Choose whole grains over refined grains for better nutrition.",
+        "Don't skip breakfast - it kickstarts your metabolism.",
+        "Plan your meals ahead to avoid unhealthy choices.",
+        "Read nutrition labels to make informed food choices.",
+        "Stay hydrated - aim for 8 glasses of water daily."
+    ];
+    
+    const randomTip = tips[Math.floor(Math.random() * tips.length)];
+    document.getElementById('dailyTip').textContent = randomTip;
+}
+
+// Get new tip
+function getNewTip() {
+    loadDailyTip();
+}
+
+// Clear daily logs
+function clearDailyLogs() {
+    if (!confirm('Are you sure you want to clear all food logs for today?')) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    fetch('/api/clear_daily_logs', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ date: today })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(data.message);
+            loadDashboard();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error clearing logs');
+    });
+}
+
+// Quick add food
+function quickAddFood() {
+    const foodName = prompt('Enter food name:');
+    if (foodName) {
+        logFood(foodName);
+    }
+}
+
+// Log food
+function logFood(foodName) {
+    const quantity = prompt(`How many servings of ${foodName}?`, '1');
+    if (!quantity || isNaN(quantity) || parseFloat(quantity) <= 0) return;
+    
+    const today = new Date().toISOString().split('T')[0];
+    fetch('/api/log_food', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({date: today, food_name: foodName, quantity: parseFloat(quantity)})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert(`✅ ${foodName} logged successfully!`);
+            loadDashboard();
+        } else {
+            alert('Error logging food');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error logging food');
+    });
+}
+
+// Log water - FIXED VERSION
+function logWater() {
+    // Add 250ml (0.25L)
+    waterIntake += 0.25;
+    
+    // Save to localStorage
+    localStorage.setItem('waterIntake', waterIntake.toString());
+    
+    // Update the display immediately
+    updateWaterDisplay();
+    
+    // Show confirmation with updated total
+    alert(`Water logged! +250ml\nTotal: ${waterIntake.toFixed(2)}L`);
+    
+    // In a real app, you would call an API to save this
+    // For demonstration, simulate API call
+    saveWaterToBackend(waterIntake);
+}
+
+// Function to simulate API call for logging water
+function saveWaterToBackend(amount) {
+    const today = new Date().toISOString().split('T')[0];
+    
+    // This would be your actual API call
+    /*
+    fetch('/api/log_water', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({date: today, amount: amount})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            console.log('Water saved to backend:', amount);
+        }
+    })
+    .catch(error => {
+        console.error('Error saving water:', error);
+    });
+    */
+    
+    // For now, just log to console
+    console.log(`Water logged: ${amount}L on ${today}`);
+}
+</script>
+
+<style>
+.nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.nutrition-card {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    border-left: 4px solid #667eea;
+}
+
+.nutrition-card.calories {
+    border-left-color: #FF6B6B;
+}
+
+.nutrition-card.protein {
+    border-left-color: #4ECDC4;
+}
+
+.nutrition-card.carbs {
+    border-left-color: #FFD166;
+}
+
+.nutrition-card.fat {
+    border-left-color: #06D6A0;
+}
+
+.nutrition-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.nutrition-label {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.food-log {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.food-log li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.food-log li:last-child {
+    border-bottom: none;
+}
+
+.food-name {
+    font-weight: 500;
+}
+
+.food-quantity {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    color: #999;
+    padding: 30px 0;
+}
+
+.progress-container {
+    margin-top: 20px;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.progress-bar {
+    height: 10px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.btn-danger {
+    background: #FF6B6B;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.quick-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f8f9ff;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.quick-action:hover {
+    background: #e6e9ff;
+    transform: translateY(-2px);
+}
+
+.quick-action i {
+    font-size: 1.5rem;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.quick-action span {
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Adjust the dashboard grid for 3 cards */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

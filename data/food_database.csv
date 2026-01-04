@@ -1,0 +1,101 @@
+id,name,category,calories,protein,fat,carbs,fiber,sugar
+1,Apple,Fruit,95.0,0.5,0.3,25.0,4.4,19.0
+2,Chicken Breast,Protein,165.0,31.0,3.6,0.0,0.0,0.0
+3,Broccoli,Vegetable,55.0,3.7,0.6,11.0,2.6,2.2
+4,Brown Rice,Grain,216.0,5.0,1.8,45.0,3.5,0.7
+5,Salmon,Protein,206.0,22.0,13.0,0.0,0.0,0.0
+6,Greek Yogurt,Dairy,59.0,10.0,0.4,3.6,0.0,3.2
+7,Almonds,Nuts,579.0,21.0,50.0,22.0,12.0,4.4
+8,Spinach,Vegetable,23.0,2.9,0.4,3.6,2.2,0.4
+9,Eggs,Protein,155.0,13.0,11.0,1.1,0.0,1.1
+10,Avocado,Fruit,160.0,2.0,15.0,9.0,7.0,0.7
+11,Oatmeal,Grain,158.0,6.0,3.2,27.0,4.0,1.0
+12,Banana,Fruit,105.0,1.3,0.4,27.0,3.1,14.0
+13,Sweet Potato,Vegetable,86.0,1.6,0.1,20.0,3.0,4.2
+14,Quinoa,Grain,120.0,4.4,1.9,21.0,2.8,0.9
+15,Tuna,Protein,132.0,28.0,1.3,0.0,0.0,0.0
+16,Milk,Dairy,42.0,3.4,1.0,5.0,0.0,5.0
+17,Beef Steak,Protein,271.0,26.0,18.0,0.0,0.0,0.0
+18,Chickpeas,Legume,364.0,19.0,6.0,61.0,17.0,11.0
+19,Dark Chocolate,Sweets,546.0,4.9,31.0,61.0,11.0,48.0
+20,Whole Wheat Bread,Grain,247.0,13.0,3.4,41.0,7.0,6.0
+21,Oranges,Fruit,62.0,1.2,0.2,15.0,3.1,12.0
+22,Cucumber,Vegetable,15.0,0.7,0.1,3.6,0.5,1.7
+23,Carrots,Vegetable,41.0,0.9,0.2,10.0,2.8,4.7
+24,Tomatoes,Vegetable,18.0,0.9,0.2,3.9,1.2,2.6
+25,Potatoes,Vegetable,77.0,2.0,0.1,17.0,2.2,0.8
+26,Onions,Vegetable,40.0,1.1,0.1,9.0,1.7,4.2
+27,Garlic,Vegetable,149.0,6.4,0.5,33.0,2.1,1.0
+28,Pumpkin,Vegetable,26.0,1.0,0.1,6.5,0.5,2.8
+29,Zucchini,Vegetable,17.0,1.2,0.3,3.1,1.0,2.5
+30,Bell Peppers,Vegetable,31.0,1.0,0.3,6.0,2.1,4.2
+31,Mushrooms,Vegetable,22.0,3.1,0.3,3.3,1.0,2.0
+32,Asparagus,Vegetable,20.0,2.2,0.1,3.9,2.1,1.9
+33,Brussels Sprouts,Vegetable,43.0,3.4,0.3,9.0,3.8,2.2
+34,Cabbage,Vegetable,25.0,1.3,0.1,6.0,2.5,3.2
+35,Kale,Vegetable,49.0,4.3,0.9,9.0,3.6,2.3
+36,Cauliflower,Vegetable,25.0,1.9,0.3,5.0,2.0,1.9
+37,Celery,Vegetable,14.0,0.7,0.2,3.0,1.6,1.3
+38,Lettuce,Vegetable,15.0,1.4,0.2,2.9,1.3,0.8
+39,Green Beans,Vegetable,31.0,1.8,0.1,7.0,3.4,3.3
+40,Peas,Vegetable,81.0,5.4,0.4,14.0,5.1,6.0
+41,Corn,Vegetable,86.0,3.3,1.2,19.0,2.7,6.3
+42,Eggplant,Vegetable,25.0,1.0,0.2,6.0,3.0,3.5
+43,Beets,Vegetable,43.0,1.6,0.2,10.0,2.8,7.0
+44,Radish,Vegetable,16.0,0.7,0.1,3.4,1.6,1.9
+45,Artichoke,Vegetable,47.0,3.3,0.2,10.5,5.4,1.0
+46,Okra,Vegetable,33.0,1.9,0.2,7.5,3.2,1.5
+47,Leek,Vegetable,61.0,1.5,0.3,14.0,1.8,3.9
+48,Scallions,Vegetable,32.0,1.8,0.2,7.3,2.6,2.3
+49,Parsley,Vegetable,36.0,3.0,0.8,6.3,3.3,0.9
+50,Cilantro,Vegetable,23.0,2.1,0.5,3.7,2.8,0.9
+51,Dill,Vegetable,43.0,3.5,1.1,7.0,2.1,0.0
+52,Mint,Vegetable,70.0,3.8,0.9,14.9,8.0,0.0
+53,Basil,Vegetable,23.0,3.2,0.6,2.7,1.6,0.3
+54,Romaine Lettuce,Vegetable,17.0,1.2,0.3,3.3,2.1,1.2
+55,Arugula,Vegetable,25.0,2.6,0.7,3.7,1.6,2.1
+56,Watercress,Vegetable,11.0,2.3,0.1,1.3,0.5,0.2
+57,Endive,Vegetable,17.0,1.3,0.2,3.4,3.1,0.3
+58,Swiss Chard,Vegetable,19.0,1.8,0.2,3.7,1.6,1.1
+59,Mustard Greens,Vegetable,27.0,2.9,0.4,4.7,3.2,1.6
+60,Collard Greens,Vegetable,33.0,2.5,0.6,5.7,4.0,0.5
+61,Beef Liver,Protein,135.0,20.4,3.6,3.9,0.0,0.0
+62,Pork Chop,Protein,242.0,27.3,14.4,0.0,0.0,0.0
+63,Lamb Chop,Protein,258.0,25.6,17.2,0.0,0.0,0.0
+64,Duck Breast,Protein,201.0,19.9,13.8,0.0,0.0,0.0
+65,Turkey Breast,Protein,135.0,30.1,0.7,0.0,0.0,0.0
+66,Venison,Protein,158.0,30.2,3.2,0.0,0.0,0.0
+67,Rabbit,Protein,173.0,33.0,3.5,0.0,0.0,0.0
+68,Goat,Protein,143.0,27.1,3.0,0.0,0.0,0.0
+69,Bison,Protein,143.0,28.4,2.4,0.0,0.0,0.0
+70,Elk,Protein,111.0,23.0,1.5,0.0,0.0,0.0
+71,Wild Boar,Protein,160.0,28.3,4.4,0.0,0.0,0.0
+72,Ostrich,Protein,145.0,28.5,2.6,0.0,0.0,0.0
+73,Emu,Protein,134.0,28.5,1.2,0.0,0.0,0.0
+74,Kangaroo,Protein,121.0,22.8,1.7,0.0,0.0,0.0
+75,Alligator,Protein,143.0,29.4,2.0,0.0,0.0,0.0
+76,Frog Legs,Protein,73.0,16.4,0.3,0.0,0.0,0.0
+77,Snail,Protein,90.0,16.1,1.4,2.0,0.0,0.0
+78,Octopus,Protein,82.0,14.9,1.0,2.2,0.0,0.0
+79,Squid,Protein,92.0,15.6,1.4,3.1,0.0,0.0
+80,Cuttlefish,Protein,79.0,16.2,0.7,0.8,0.0,0.0
+81,Scallops,Protein,88.0,16.8,0.8,2.4,0.0,0.0
+82,Mussels,Protein,86.0,11.9,2.2,3.7,0.0,0.0
+83,Clams,Protein,74.0,12.8,0.8,2.6,0.0,0.0
+84,Oysters,Protein,81.0,9.5,2.3,4.9,0.0,0.0
+85,Lobster,Protein,90.0,18.8,0.9,0.5,0.0,0.0
+86,Crab,Protein,87.0,18.1,1.1,0.0,0.0,0.0
+87,Shrimp,Protein,85.0,20.1,0.5,0.0,0.0,0.0
+88,Crayfish,Protein,82.0,16.8,1.2,0.0,0.0,0.0
+89,Prawns,Protein,85.0,20.1,0.5,0.0,0.0,0.0
+90,Caviar,Protein,264.0,24.6,17.9,4.0,0.0,0.0
+91,Anchovies,Protein,210.0,28.9,9.7,0.0,0.0,0.0
+92,Sardines,Protein,208.0,24.6,11.5,0.0,0.0,0.0
+93,Mackerel,Protein,205.0,18.6,13.9,0.0,0.0,0.0
+94,Herring,Protein,158.0,18.0,9.0,0.0,0.0,0.0
+95,Trout,Protein,148.0,20.5,6.6,0.0,0.0,0.0
+96,Cod,Protein,82.0,17.8,0.7,0.0,0.0,0.0
+97,Halibut,Protein,111.0,20.8,2.3,0.0,0.0,0.0
+98,Sole,Protein,91.0,18.8,1.2,0.0,0.0,0.0
+99,Flounder,Protein,70.0,14.5,1.0,0.0,0.0,0.0
+100,Catfish,Protein,105.0,18.5,2.9,0.0,0.0,0.0

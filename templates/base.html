@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>{% block title %}Food Tracker & Nutrition Assistant{% endblock %}</title>
+    <link rel='stylesheet' href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* Center the navigation menu */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+        
+        .nav-brand {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-menu {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .nav-menu li {
+            margin: 0;
+        }
+        
+        .nav-menu a {
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-menu a.active {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .nav-actions {
+            position: absolute;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logout-btn {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #FF5252 0%, #FF7B7B 100%);
+            transform: translateY(-2px);
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 1024px) {
+            .nav-menu {
+                gap: 5px;
+            }
+            
+            .nav-menu a {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            .nav-brand span {
+                display: none;
+            }
+            
+            .logout-btn {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                padding: 10px 0;
+            }
+            
+            .nav-brand {
+                position: relative;
+                margin-bottom: 10px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-menu li {
+                margin: 2px;
+            }
+            
+            .nav-menu a {
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+            
+            .nav-actions {
+                position: relative;
+                right: 0;
+                margin-top: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-menu {
+                gap: 2px;
+            }
+            
+            .nav-menu a {
+                padding: 5px 6px;
+                font-size: 12px;
+            }
+            
+            .nav-menu a i {
+                margin-right: 3px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class='navbar'>
+        <div class='nav-container'>
+            <div class='nav-brand'>
+                <i class='fas fa-apple-alt'></i>
+                <span>NutriTrack</span>
+            </div>
+            
+            <ul class='nav-menu'>
+                <li><a href="{{ url_for('dashboard') }}" {% if request.endpoint == 'dashboard' %}class='active'{% endif %}><i class='fas fa-home'></i> Dashboard</a></li>
+                <li><a href="{{ url_for('profile_page') }}" {% if request.endpoint == 'profile_page' %}class='active'{% endif %}><i class='fas fa-user'></i> Profile</a></li>
+                <li><a href="{{ url_for('food_log_page') }}" {% if request.endpoint == 'food_log_page' %}class='active'{% endif %}><i class='fas fa-utensils'></i> Food Log</a></li>
+                <li><a href="{{ url_for('chatbot_page') }}" {% if request.endpoint == 'chatbot_page' %}class='active'{% endif %}><i class='fas fa-robot'></i> Assistant</a></li>
+                <li><a href="{{ url_for('recommendations_page') }}" {% if request.endpoint == 'recommendations_page' %}class='active'{% endif %}><i class='fas fa-lightbulb'></i> Recommendations</a></li>
+                <li><a href="{{ url_for('database_page') }}" {% if request.endpoint == 'database_page' %}class='active'{% endif %}><i class='fas fa-database'></i> Database</a></li>
+            </ul>
+            
+            <div class='nav-actions'>
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('logout') }}" class='logout-btn'>
+                        <i class='fas fa-sign-out-alt'></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('login_page') }}" class='logout-btn' style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <i class='fas fa-sign-in-alt'></i> Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class='main-content'>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class='footer'>
+        <div class='footer-content'>
+            <p>© 2024 NutriTrack - Food Tracker & Nutrition Assistant</p>
+            <p class='footer-links'>
+                <a href='#'><i class='fas fa-question-circle'></i> Help</a>
+                <a href='#'><i class='fas fa-shield-alt'></i> Privacy</a>
+                <a href='#'><i class='fas fa-envelope'></i> Contact</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

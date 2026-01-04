@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - NutriTrack{% endblock %}
+
+{% block content %}
+<div class='page-container'>
+    <div class='page-header'>
+        <h1><i class='fas fa-user'></i> User Profile</h1>
+        <p>Manage your personal information and nutrition goals</p>
+    </div>
+
+    <div class='profile-container'>
+        <div class='card'>
+            <div class='card-header'>
+                <h2><i class='fas fa-user-edit'></i> Personal Information</h2>
+            </div>
+            <div class='card-body'>
+                <form id='profileForm' class='user-form'>
+                    <div class='form-grid'>
+    <div class='form-group'>
+        <label for='userName'><i class='fas fa-signature'></i> Name</label>
+        <input type='text' id='userName' placeholder='Enter your name' 
+               value='{% if user_profile %}{{ user_profile.name }}{% else %}Enter your name{% endif %}'>
+    </div>
+    
+    <div class='form-group'>
+        <label for='userAge'><i class='fas fa-birthday-cake'></i> Age</label>
+        <input type='number' id='userAge' placeholder='Age' min='1' max='120'
+               value='{% if user_profile %}{{ user_profile.age }}{% else %}30{% endif %}'>
+    </div>
+    
+    <div class='form-group'>
+        <label for='userWeight'><i class='fas fa-weight'></i> Weight (kg)</label>
+        <input type='number' id='userWeight' placeholder='Weight in kg' step='0.1' min='0'
+               value='{% if user_profile %}{{ user_profile.weight }}{% else %}70{% endif %}'>
+    </div>
+    
+    <div class='form-group'>
+        <label for='userHeight'><i class='fas fa-ruler-vertical'></i> Height (cm)</label>
+        <input type='number' id='userHeight' placeholder='Height in cm' min='0'
+               value='{% if user_profile %}{{ user_profile.height }}{% else %}175{% endif %}'>
+    </div>
+    
+    <div class='form-group'>
+        <label for='userGender'><i class='fas fa-venus-mars'></i> Gender</label>
+        <select id='userGender'>
+            <option value='male' {% if user_profile and user_profile.gender == 'male' %}selected{% endif %}>Male</option>
+            <option value='female' {% if user_profile and user_profile.gender == 'female' %}selected{% endif %}>Female</option>
+            <option value='other' {% if user_profile and user_profile.gender == 'other' %}selected{% endif %}>Other</option>
+        </select>
+    </div>
+    
+    <div class='form-group'>
+        <label for='userActivity'><i class='fas fa-running'></i> Activity Level</label>
+        <select id='userActivity'>
+            <option value='sedentary' {% if user_profile and user_profile.activity_level == 'sedentary' %}selected{% endif %}>
+                Sedentary (little or no exercise)
+            </option>
+            <option value='light' {% if user_profile and user_profile.activity_level == 'light' %}selected{% endif %}>
+                Light Exercise (1-3 days/week)
+            </option>
+            <option value='moderate' {% if user_profile and user_profile.activity_level == 'moderate' %}selected{% endif %}>
+                Moderate Exercise (3-5 days/week)
+            </option>
+            <option value='active' {% if user_profile and user_profile.activity_level == 'active' %}selected{% endif %}>
+                Active (6-7 days/week)
+            </option>
+            <option value='very_active' {% if user_profile and user_profile.activity_level == 'very_active' %}selected{% endif %}>
+                Very Active (intense exercise daily)
+            </option>
+        </select>
+    </div>
+    
+    <div class='form-group'>
+        <label for='userGoal'><i class='fas fa-bullseye'></i> Goal</label>
+        <select id='userGoal'>
+            <option value='lose' {% if user_profile and user_profile.goal == 'lose' %}selected{% endif %}>Lose Weight</option>
+            <option value='maintain' {% if user_profile and user_profile.goal == 'maintain' %}selected{% endif %}>Maintain Weight</option>
+            <option value='gain' {% if user_profile and user_profile.goal == 'gain' %}selected{% endif %}>Gain Weight</option>
+        </select>
+    </div>
+</div>
+                    
+                    <div class='form-actions'>
+                        <button type='button' onclick='createUserProfile()' class='btn-primary'>
+                            <i class='fas fa-save'></i> Save Profile
+                        </button>
+                        <button type='button' onclick='resetForm()' class='btn-secondary'>
+                            <i class='fas fa-undo'></i> Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profile Summary -->
+        <div class='card'>
+    <div class='card-header'>
+        <h2><i class='fas fa-chart-bar'></i> Profile Summary - {% if user_profile %}{{ user_profile.name }}{% else %}New User{% endif %}</h2>
+    </div>
+    <div class='card-body'>
+        <div id='profileSummary'>
+            {% if user_profile and user_profile.name %}
+            <div class='summary-grid'>
+                <div class='summary-item'>
+                    <div class='summary-label'>Daily Calories</div>
+                    <div class='summary-value'>{{ user_profile.daily_calories|round|int }} cal</div>
+                </div>
+                <div class='summary-item'>
+                    <div class='summary-label'>BMI</div>
+                    {% if user_profile.bmi %}
+                    <div class='summary-value'>{{ user_profile.bmi|round(1) }}</div>
+                    <div class='summary-category'>{{ user_profile.bmi_category }}</div>
+                    {% else %}
+                    <div class='summary-value'>--</div>
+                    <div class='summary-category'>Not calculated</div>
+                    {% endif %}
+                </div>
+                <div class='summary-item'>
+                    <div class='summary-label'>Water Intake</div>
+                    {% if user_profile.water_intake %}
+                    <div class='summary-value'>{{ user_profile.water_intake }} L</div>
+                    {% else %}
+                    <div class='summary-value'>--</div>
+                    {% endif %}
+                </div>
+                <div class='summary-item'>
+                    <div class='summary-label'>Goal</div>
+                    <div class='summary-value'>
+                        {% if user_profile.goal == 'lose' %}Weight Loss{% endif %}
+                        {% if user_profile.goal == 'maintain' %}Maintenance{% endif %}
+                        {% if user_profile.goal == 'gain' %}Weight Gain{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class='health-tips'>
+                <h3><i class='fas fa-heartbeat'></i> Health Recommendations</h3>
+                <ul>
+                    <li>Aim for {{ user_profile.daily_calories|round|int }} calories daily</li>
+                    {% if user_profile.water_intake %}
+                    <li>Drink {{ user_profile.water_intake }} liters of water daily</li>
+                    {% endif %}
+                    {% if user_profile.bmi_category and user_profile.bmi_category != 'Normal weight' %}
+                    <li>Your BMI suggests {{ user_profile.bmi_category|lower }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% else %}
+            <p class='empty-state'>No profile created yet. Fill out the form above to create your profile.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function createUserProfile() {
+    const userData = {
+        name: document.getElementById('userName').value,
+        age: document.getElementById('userAge').value,
+        weight: document.getElementById('userWeight').value,
+        height: document.getElementById('userHeight').value,
+        gender: document.getElementById('userGender').value,
+        activity_level: document.getElementById('userActivity').value,
+        goal: document.getElementById('userGoal').value
+    };
+    
+    // Validate required fields
+    if (!userData.name || !userData.age || !userData.weight || !userData.height) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // Use update_profile API instead of create_user for existing users
+    const apiEndpoint = '/api/update_profile';
+    
+    fetch(apiEndpoint, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(userData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+        } else {
+            alert('Profile saved successfully! Daily calorie target: ' + Math.round(data.daily_calories) + ' cal');
+            location.reload(); // Reload to show updated data
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error saving profile');
+    });
+}
+
+function updateProfileSummary(data) {
+    const summaryDiv = document.getElementById('profileSummary');
+    
+    const bmiCategory = data.bmi < 18.5 ? 'Underweight' :
+                       data.bmi < 25 ? 'Normal weight' :
+                       data.bmi < 30 ? 'Overweight' : 'Obese';
+    
+    const goalText = data.goal === 'lose' ? 'Weight Loss' :
+                    data.goal === 'maintain' ? 'Maintenance' : 'Weight Gain';
+    
+    summaryDiv.innerHTML = `
+        <div class="summary-grid">
+            <div class="summary-item">
+                <div class="summary-label">Daily Calories</div>
+                <div class="summary-value">${Math.round(data.daily_calories)} cal</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">BMI</div>
+                <div class="summary-value">${data.bmi}</div>
+                <div class="summary-category">${bmiCategory}</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Water Intake</div>
+                <div class="summary-value">${data.water_intake} L</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-label">Goal</div>
+                <div class="summary-value">${goalText}</div>
+            </div>
+        </div>
+        <div class="health-tips">
+            <h3><i class="fas fa-heartbeat"></i> Health Recommendations</h3>
+            <ul>
+                <li>Aim for ${Math.round(data.daily_calories)} calories daily</li>
+                <li>Drink ${data.water_intake} liters of water daily</li>
+                ${bmiCategory !== 'Normal weight' ? `<li>Your BMI suggests ${bmiCategory.toLowerCase()}</li>` : ''}
+            </ul>
+        </div>
+    `;
+}
+
+function resetForm() {
+    if (confirm('Reset all fields to default?')) {
+        document.getElementById('profileForm').reset();
+    }
+}
+</script>
+{% endblock %}
